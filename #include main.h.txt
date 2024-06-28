@@ -1,0 +1,295 @@
+#include "main.h"
+#include "Scene.h"
+
+
+//ルール
+//プログラムを打つ時は半角のみ使う
+//メモしたい場合は先頭に//をおけば全角も使える
+
+void Scene::Draw2D()//描画
+{
+	matrix = Math::Matrix::CreateTranslation(0, backY, 0);
+	SHADER.m_spriteShader.SetMatrix(matrix);
+	SHADER.m_spriteShader.DrawTex(&backTex, Math::Rectangle{ 0,0,1280,720 }, 1.0f);
+	
+	matrix = Math::Matrix::CreateTranslation(0, backY +720, 0);
+	SHADER.m_spriteShader.SetMatrix(matrix);
+	SHADER.m_spriteShader.DrawTex(&backTex, Math::Rectangle{ 0,0,1280,720 }, 1.0f);
+	if (playerFlg == 1) {
+		//空の行列に作成した行列を渡す
+		matrix = Math::Matrix::CreateTranslation(playerX, playerY, playerZ);//x,y,z
+		//移動行列をセット
+		SHADER.m_spriteShader.SetMatrix(matrix);
+		//描画
+		SHADER.m_spriteShader.DrawTex(&charaTex, Math::Rectangle{ 192,192,64,64 }, 1.0f);
+		
+		
+	}
+	for (int bu= 0; bu < blunum; bu++)
+	{
+		
+            if (bulletFlg[bu] == 1)
+		    {
+		     matrix = Math::Matrix::CreateTranslation(bulletX[bu], bulletY[bu], 0);//x,y,z
+		     SHADER.m_spriteShader.SetMatrix(matrix);
+		     SHADER.m_spriteShader.DrawTex(&bulletTex, Math::Rectangle{ 0,0,16,16 }, 1.0f);
+	         }
+
+
+	}
+			
+
+		
+	for (int i = 0; i < enenum; i++) 
+	{
+		if (enemyFlg[i] == 1) 
+		{
+		 matrix = Math::Matrix::CreateTranslation(enemyX[i], enemyY[i], 0);
+	     SHADER.m_spriteShader.SetMatrix(matrix);
+	     SHADER.m_spriteShader.DrawTex(&enemyTex, Math::Rectangle{0,0,64,64 }, 1.0f);
+        }
+	
+	
+
+	}
+	
+
+
+
+	// 文字列表示
+	//SHADER.m_spriteShader.DrawString(0, 0, "Hello World", Math::Vector4(1, 1, 0, 1));
+}
+
+void Scene::Update()//更新
+
+{
+	//1秒間に６０回実行
+  if (playerFlg == 1) 
+  {
+	  
+	 if (GetAsyncKeyState(VK_SPACE) & 0x8000 )
+     {
+
+		 for (int bu = 0; bu <blunum ; bu++)
+		 {
+			 	if(bulletFlg[bu]==0)
+				{
+					bulletFlg[bu] = 1;
+			        bulletX[bu] = playerX;
+			        bulletY[bu] = playerY;
+				}
+			 
+		     
+	       
+			  
+	       if (bulletY[bu] > 360) 
+	       {
+			 bulletFlg[bu] = 0;
+	       }
+	       for (int i = 0; i < enenum; i++)
+		   {
+			 if(enemyFlg[i] == 1)
+			 float ax = bulletX[bu] - enemyX[i] ;
+			 float bx = bulletY[bu] - enemyY[i];
+			 float cx = sqrt(ax*ax+bx*bx);
+			 if (cx<40 )
+			 {
+				 enemyFlg[i] = 0;
+				 bulletFlg[bu] = 0;
+			 }
+
+		   }
+		  
+		   
+		 }
+	 }
+	 for (int bu = 0; bu < blunum; bu++)
+	 {
+			 if (bulletFlg[bu] == 1)
+		     {
+			  bulletY[bu] += 15;
+		     }
+	 }
+	if(GetAsyncKeyState(VK_RIGHT)&0x8000)
+	playerX += 10;
+	
+
+	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+	playerX -= 10;
+	
+	
+	
+	if (GetAsyncKeyState(VK_UP) & 0x8000)
+	playerY += 10;
+	
+	
+		
+	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+	playerY -= 10; 
+	
+	
+	if(playerX >= 640-32)
+	{
+		playerX -= 10;
+	}
+	if (playerX <= -640+32)
+	{
+		playerX += 10;
+	}
+	if (playerY >= 360 - 32)
+	{
+		playerY -= 10;
+	}
+	if (playerY <= -360+32)
+	{
+		playerY += 10;
+	}
+	
+	
+  }
+	//敵
+	   /*srand(time(0));
+		enemyY += rand() % 20 + 1;
+
+		srand(time(0));
+		enemyX -= rand()%20+1;
+
+		srand(time(0));
+		enemyX += rand() % 20 + 1;
+
+		srand(time(0));
+		enemyY -= rand() % 20 + 1;*/
+  for (int i = 0; i < enenum; i++) 
+  {
+	  if (enemyFlg[i] == 1) 
+	  {
+		srand(time(0));
+		rand();
+		enemyY[i] -= rand() % 8 +i;
+      if (enemyX [i] >= 640 - 32)
+	  {
+		enemyX[i] -= rand() % (1280-64) + 1 -(640 - 32);
+		enemyY[i] += rand() % 110 + 600;
+	  }
+	    if (enemyX[i] <= -640 + 32)
+	    {
+			enemyX[i] += rand() % (1280 - 64) + 1 - (640- 32);
+		   enemyY[i] += rand() % 110+600;
+	    } 
+		/*for (int i = 0; i>n; i++)
+		{
+			for (int e = i - 1; e < n; e++)
+			{
+				float e_a = enemyX[i] - enemyX[i];
+				float e_b = enemyY[i] - enemyY[i];
+				float e_c = sqrt(e_a * e_a + e_b * e_b);
+				if (e_c < 64)
+				{
+					enemyX[i] += rand() % 64 + 1;
+				}
+			}
+	    
+		}   */
+	   
+	    /* if (enemyY[i] >= 360 - 32)
+	     {
+		 enemyY[i] -= rand() % 300 + 32;
+		 enemyX[i] -= rand()  %-30+620;
+	     }*/
+	      if (enemyY[i] <= -360 + 32)
+	      {
+		   enemyY[i] += rand() % 110 +630;
+		   enemyX[i] += rand() % (1280-64) + 1-(640-32);
+	      }
+
+	  }
+
+  }
+  for (int i = 0; i < enenum; i++) 
+  {
+	  float a = enemyX[i] - playerX;
+	  float b = enemyY[i] - playerY;
+	  float c = sqrt(a*a+b*b);
+	    if (c<16&&playerFlg==1)
+		{
+			enemyFlg[i] = 0;
+			playerFlg=0;
+		}
+
+  }
+		
+		
+		if (GetAsyncKeyState(VK_RETURN) & 0x8000)
+		{
+			for (int i = 0; i < enenum; i++) 
+			{
+			enemyX[i] = rand() % (1280 - 64) + 1 - (640 - 32);
+			enemyY[i] = 360+32;
+			enemyFlg[i] = 1;
+			playerX = 0;
+		    playerY = -200;
+		    playerFlg = 1;
+		    bulletFlg[0] = 0;
+
+			}
+			
+		}
+		backY -= 5;
+	if (backY < -720) 
+	{
+		backY = 0;
+	}
+	
+	
+	
+	
+	
+}
+void Scene::Init()//初期化
+{
+	// 画像の読み込み処理
+	charaTex.Load("player.png");
+
+	backTex.Load("back.png");
+
+	enemyTex.Load("enemy.png");
+	
+	bulletTex.Load("bullet.png");
+
+	playerX = 0 ;
+	playerY = -200;
+	playerFlg = 1;
+
+	for (int i = 0; i < enenum; i++)
+	{
+	enemyX[i] = rand() % (1280 - 64) + 1 - (640 - 32);
+	enemyY[i] = 360+32;
+	enemyFlg[i] = 1;
+
+	}
+	
+
+}
+
+void Scene::Release()//終了
+{
+	// 画像の解放処理
+	charaTex.Release();
+	backTex.Release();
+	enemyTex.Release();
+}
+
+void Scene::ImGuiUpdate()
+{
+	return;
+
+	ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_Once);
+
+	// デバッグウィンドウ
+	if (ImGui::Begin("Debug Window"))
+	{
+		ImGui::Text("FPS : %d", APP.m_fps);
+	}
+	ImGui::End();
+}

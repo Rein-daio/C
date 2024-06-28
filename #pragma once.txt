@@ -1,0 +1,64 @@
+#pragma once
+
+class Scene
+{
+private:
+
+	// テクスチャ ・・・ 画像データ
+	KdTexture charaTex;
+	KdTexture backTex;
+	KdTexture enemyTex;
+	KdTexture bulletTex;
+
+	// 行列 ・・・ 座標などの情報
+	Math::Matrix matrix;
+	//プレイヤー
+	float playerX ;
+	float playerY;
+	float playerZ;
+	int playerFlg;
+	//背景
+	float backY;
+	//敵
+	static const int enenum = 10;
+	float enemyX[enenum];
+	float enemyY[enenum];
+	int enemyFlg[enenum];
+	int e=0,i=0,bu=0,t=0;
+	
+	static const int blunum = 10;
+	float bulletX[blunum];
+	float bulletY[blunum];
+	int bulletFlg[blunum];
+	int bulletWait;//待機時間
+	float a = 0, ax = 0, b = 0;
+public:
+
+	// 初期設定
+	void Init();
+
+	// 解放
+	void Release();
+
+	// 更新処理
+	void Update();
+
+	// 描画処理
+	void Draw2D();
+
+	// GUI処理
+	void ImGuiUpdate();
+
+private:
+
+	Scene() {}
+
+public:
+	static Scene& GetInstance()
+	{
+		static Scene instance;
+		return instance;
+	}
+};
+
+#define SCENE Scene::GetInstance()
